@@ -16,24 +16,43 @@ defmodule ChatbotWeb.ChatLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
-    <h1 class="u-fg-brand-1">Chatbot</h1>
+    <header>
+      <.ui_page_title class="u-fg-brand-1 u-padding-l3-top u-margin-l3-bottom">
+        Chatbot
+      </.ui_page_title>
+    </header>
 
-    <%= for message <- @messages do %>
-      <.chat_message role={message.role} content={message.content} />
-    <% end %>
+    <main class="u-grid u-gap-l1">
+      <%= for message <- @messages do %>
+        <.chat_message role={message.role} content={message.content} />
+      <% end %>
 
-    <.simple_form for={@form} phx-submit="send">
-      <.input field={@form[:message]} label="Message" />
-      <:actions>
-        <.button>Send</.button>
-      </:actions>
-    </.simple_form>
+      <.simple_form for={@form} phx-submit="send" class="u-justify-self-end u-width-75">
+        <.ui_input
+          type="textarea"
+          form={@form}
+          field={:message}
+          label="Message"
+          hidden_label={true}
+          maxlength="5000"
+          placeholder="Ask a question"
+        />
+        <:actions>
+          <.ui_button>Send</.ui_button>
+        </:actions>
+      </.simple_form>
+    </main>
     """
   end
 
   defp chat_message(assigns) do
+    justify_self =
+      if assigns.role == :user, do: "u-justify-self-end", else: "u-justify-self-start"
+
+    assigns = assign(assigns, :class, "u-max-width-75 u-bg-white " <> justify_self)
+
     ~H"""
-    <p><%= @role %>: <%= @content %></p>
+    <.ui_card class={@class}><%= @content %></.ui_card>
     """
   end
 

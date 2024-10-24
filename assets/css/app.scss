@@ -21,5 +21,60 @@
 @use '~bitstyles/scss/bitstyles/atoms';
 @use '~bitstyles/scss/bitstyles/organisms';
 
-// Utilities
-@use '~bitstyles/scss/bitstyles/utilities';
+// Utilities (split into parts)
+@use '~bitstyles/scss/bitstyles/utilities/aspect-ratio';
+@use '~bitstyles/scss/bitstyles/utilities/bg';
+@use '~bitstyles/scss/bitstyles/utilities/border';
+@use '~bitstyles/scss/bitstyles/utilities/border-radius';
+@use '~bitstyles/scss/bitstyles/utilities/box-shadow';
+@use '~bitstyles/scss/bitstyles/utilities/break-text';
+@use '~bitstyles/scss/bitstyles/utilities/clearfix';
+@use '~bitstyles/scss/bitstyles/utilities/col-span';
+@use '~bitstyles/scss/bitstyles/utilities/col-start';
+@use '~bitstyles/scss/bitstyles/utilities/display';
+@use '~bitstyles/scss/bitstyles/utilities/drop-shadow';
+@use '~bitstyles/scss/bitstyles/utilities/fg';
+@use '~bitstyles/scss/bitstyles/utilities/flex';
+@use '~bitstyles/scss/bitstyles/utilities/font';
+@use '~bitstyles/scss/bitstyles/utilities/gap';
+@use '~bitstyles/scss/bitstyles/utilities/grid-cols';
+@use '~bitstyles/scss/bitstyles/utilities/grid-rows';
+@use '~bitstyles/scss/bitstyles/utilities/height';
+@use '~bitstyles/scss/bitstyles/utilities/inset';
+@use '~bitstyles/scss/bitstyles/utilities/items';
+@use '~bitstyles/scss/bitstyles/utilities/justify';
+@use '~bitstyles/scss/bitstyles/utilities/line-height';
+@use '~bitstyles/scss/bitstyles/utilities/list';
+@use '~bitstyles/scss/bitstyles/utilities/margin';
+@use '~bitstyles/scss/bitstyles/utilities/max-height';
+
+@use '~bitstyles/scss/bitstyles/utilities/max-width' with (
+  $values: (
+    '75': 75%,
+  )
+);
+
+@use '~bitstyles/scss/bitstyles/utilities/min-height';
+@use '~bitstyles/scss/bitstyles/utilities/min-width';
+@use '~bitstyles/scss/bitstyles/utilities/object-cover';
+@use '~bitstyles/scss/bitstyles/utilities/outline';
+@use '~bitstyles/scss/bitstyles/utilities/overflow';
+@use '~bitstyles/scss/bitstyles/utilities/padding';
+@use '~bitstyles/scss/bitstyles/utilities/position';
+@use '~bitstyles/scss/bitstyles/utilities/row-start';
+@use '~bitstyles/scss/bitstyles/utilities/self';
+@use '~bitstyles/scss/bitstyles/utilities/sr-only';
+@use '~bitstyles/scss/bitstyles/utilities/text';
+@use '~bitstyles/scss/bitstyles/utilities/text-decoration';
+@use '~bitstyles/scss/bitstyles/utilities/truncate';
+@use '~bitstyles/scss/bitstyles/utilities/typography-responsive' as typography-responsive-utilities;
+@use '~bitstyles/scss/bitstyles/utilities/typography' as typography-utilities;
+@use '~bitstyles/scss/bitstyles/utilities/white-space';
+
+@use '~bitstyles/scss/bitstyles/utilities/width' with (
+  $values: (
+    '75': 75%,
+  )
+);
+
+@use '~bitstyles/scss/bitstyles/utilities/z-index';
