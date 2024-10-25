@@ -2,6 +2,12 @@ import Config
 
 config :langchain, openai_key: "your key"
 
+if config_env() == :test do
+  config :chatbot, :mock_llm_api, true
+else
+  config :chatbot, :mock_llm_api, System.get_env("MOCK_LLM_API") in ~w(true TRUE 1)
+end
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration
