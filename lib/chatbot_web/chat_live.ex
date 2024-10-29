@@ -17,7 +17,7 @@ defmodule ChatbotWeb.ChatLive do
   def render(assigns) do
     ~H"""
     <header>
-      <.ui_page_title class="u-fg-brand-1 u-padding-l3-top u-margin-l3-bottom">
+      <.ui_page_title class="u-fg-brand-1 u-margin-l3-bottom">
         Chatbot
       </.ui_page_title>
     </header>
