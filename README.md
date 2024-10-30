@@ -7,12 +7,12 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Configuration options
 
-## Learn more
+### Mock API calls
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+If you just want to try out the chatbot, but you don't have any LLM setup yet, you can set `MOCK_LLM_API` to `true` and use the chatbot with fake mocked messages.
+
+```
+MOCK_LLM_API=true mix phx.server
+```
