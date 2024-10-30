@@ -17,6 +17,8 @@ defmodule Chatbot.Chat do
          )
 
   def create_assistant_message(messages) do
+    maybe_mock_llm()
+
     messages =
       Enum.map(messages, fn %{role: role, content: content} ->
         case role do
@@ -54,7 +56,7 @@ defmodule Chatbot.Chat do
       end)
 
     Task.Supervisor.start_child(Chatbot.TaskSupervisor, fn ->
-      maybe_mock_llm()
+      maybe_mock_llm(stream: true)
 
       @chain
       |> LangChain.Chains.LLMChain.add_callback(handler)
@@ -64,8 +66,8 @@ defmodule Chatbot.Chat do
     end)
   end
 
-  defp maybe_mock_llm do
-    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock()
+  defp maybe_mock_llm(opts \\ []) do
+    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock(opts)
   end
 
   def all_messages() do

@@ -1,8 +1,27 @@
 defmodule Chatbot.LLMMock do
   import LangChain.Utils.ApiOverride
-  alias LangChain.MessageDelta
+  alias LangChain.{Message, MessageDelta}
 
-  def mock do
+  def mock(opts) do
+    if Keyword.get(opts, :stream, false) do
+      do_mock()
+    else
+      do_mock_stream()
+    end
+  end
+
+  def do_mock do
+    content = """
+    Thanks for your question.
+    I don't have an answer right now.
+    Please try another question.
+    Maybe I can help with that.
+    """
+
+    set_api_override({:ok, Message.new_assistant!(%{content: content}), :on_llm_new_message})
+  end
+
+  def do_mock_stream do
     fake_messages = [
       [MessageDelta.new!(%{role: :assistant, content: nil, status: :incomplete})],
       [MessageDelta.new!(%{content: "Thanks for your question. ", status: :incomplete})],
