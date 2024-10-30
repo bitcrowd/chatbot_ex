@@ -65,7 +65,7 @@ defmodule Chatbot.Chat do
   end
 
   defp maybe_mock_llm do
-    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.use_mock()
+    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock()
   end
 
   def all_messages() do

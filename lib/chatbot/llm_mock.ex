@@ -2,7 +2,7 @@ defmodule Chatbot.LLMMock do
   import LangChain.Utils.ApiOverride
   alias LangChain.MessageDelta
 
-  def use_mock do
+  def mock do
     fake_messages = [
       [MessageDelta.new!(%{role: :assistant, content: nil, status: :incomplete})],
       [MessageDelta.new!(%{content: "Thanks for your question. ", status: :incomplete})],
