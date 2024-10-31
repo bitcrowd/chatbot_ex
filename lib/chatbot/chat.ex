@@ -2,7 +2,7 @@ defmodule Chatbot.Chat do
   import Ecto.Query, only: [from: 2]
   alias Chatbot.{Chat.Message, LLMMock}
 
-  def create_message(%{role: :user} = attrs) do
+  def create_message(attrs) do
     attrs
     |> Message.changeset()
     |> Chatbot.Repo.insert()
