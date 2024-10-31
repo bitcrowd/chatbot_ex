@@ -2,8 +2,10 @@ defmodule Chatbot.Chat do
   import Ecto.Query, only: [from: 2]
   alias Chatbot.{Chat.Message, LLMMock}
 
-  def create_user_message(%{role: :user} = attrs) do
-    Message.changeset(attrs) |> Chatbot.Repo.insert!()
+  def create_message(%{role: :user} = attrs) do
+    attrs
+    |> Message.changeset()
+    |> Chatbot.Repo.insert()
   end
 
   @llm LangChain.ChatModels.ChatOpenAI.new!(%{
@@ -16,7 +18,7 @@ defmodule Chatbot.Chat do
            LangChain.Message.new_system!("You give fun responses.")
          )
 
-  def create_assistant_message(messages) do
+  def request_assistant_message(messages) do
     maybe_mock_llm()
 
     messages =
@@ -30,7 +32,7 @@ defmodule Chatbot.Chat do
     with {:ok, _chain, response} <-
            LangChain.Chains.LLMChain.add_messages(@chain, messages)
            |> LangChain.Chains.LLMChain.run() do
-      Message.changeset(%{role: :assistant, content: response.content}) |> Chatbot.Repo.insert()
+      create_message(%{role: :assistant, content: response.content})
     else
       _error -> {:error, "I failed, I'm sorry"}
     end
@@ -42,7 +44,7 @@ defmodule Chatbot.Chat do
         send(receiver, {:next_message_delta, data.content})
       end,
       on_message_processed: fn _chain, %LangChain.Message{} = data ->
-        Message.changeset(%{role: :assistant, content: data.content}) |> Chatbot.Repo.insert()
+        create_message(%{role: :assistant, content: data.content})
         send(receiver, {:message_processed, data.content})
       end
     }

@@ -59,7 +59,7 @@ defmodule ChatbotWeb.ChatLive do
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => message}, socket) do
     messages = socket.assigns.messages
-    user_message = Chat.create_user_message(%{role: :user, content: message})
+    {:ok, user_message} = Chat.create_message(%{role: :user, content: message})
 
     messages = messages ++ [user_message]
 
@@ -72,7 +72,7 @@ defmodule ChatbotWeb.ChatLive do
 
   @impl Phoenix.LiveView
   def handle_info({:new_assistant_message, messages}, socket) do
-    {:ok, assistant_message} = Chat.create_assistant_message(messages)
+    {:ok, assistant_message} = Chat.request_assistant_message(messages)
 
     messages = messages ++ [assistant_message]
     {:noreply, assign(socket, :messages, messages)}

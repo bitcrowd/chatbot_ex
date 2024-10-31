@@ -1,5 +1,6 @@
 defmodule Chatbot.Chat.Message do
   use Ecto.Schema
+  import Ecto.Changeset
 
   @message_types [:user, :assistant, :system]
 
@@ -11,6 +12,8 @@ defmodule Chatbot.Chat.Message do
   end
 
   def changeset(message \\ %__MODULE__{}, attrs) do
-    Ecto.Changeset.cast(message, attrs, [:role, :content])
+    message
+    |> cast(attrs, [:role, :content])
+    |> validate_required([:role, :content])
   end
 end

@@ -23,6 +23,7 @@ defmodule Chatbot.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import BitcrowdEcto.Assertions
       import Chatbot.DataCase
     end
   end
