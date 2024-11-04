@@ -8,7 +8,7 @@ defmodule ChatbotWeb.ChatLive do
     socket =
       socket
       |> assign(:messages, Chat.all_messages())
-      |> assign(:form, to_form(%{"message" => ""}))
+      |> assign(:form, to_form(%{"message" => ""}, id: "0"))
 
     {:ok, socket}
   end
@@ -67,7 +67,10 @@ defmodule ChatbotWeb.ChatLive do
 
     messages = messages ++ [%{role: :assistant, content: ""}]
 
-    {:noreply, assign(socket, :messages, messages)}
+    {:noreply,
+     socket
+     |> assign(:messages, messages)
+     |> assign(:form, to_form(%{"message" => ""}, id: "#{Enum.count(messages)}"))}
   end
 
   @impl Phoenix.LiveView
