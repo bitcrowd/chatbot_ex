@@ -23,7 +23,10 @@ defmodule Chatbot.Chat.Message do
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(message \\ %__MODULE__{}, attrs) do
     message
-    |> cast(attrs, [:role, :content])
-    |> validate_required([:role, :content])
+    |> cast(attrs, [:role])
+    |> cast(attrs, [:content], empty_values: [nil])
+    # we cannot require the content, as
+    # validate_required still considers "" as empty
+    |> validate_required([:role])
   end
 end

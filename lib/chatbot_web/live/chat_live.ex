@@ -7,7 +7,8 @@ defmodule ChatbotWeb.ChatLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:messages, Chat.all_messages())
+      |> stream(:messages, Chat.all_messages())
+      |> assign(:currently_streamed_response, nil)
       |> assign(:form, build_form(0))
 
     {:ok, socket}
@@ -22,25 +23,32 @@ defmodule ChatbotWeb.ChatLive do
       </.ui_page_title>
     </header>
 
-    <main class="u-grid u-gap-l1">
-      <%= for message <- @messages do %>
-        <.chat_message role={message.role} content={message.content} />
-      <% end %>
-
-      <.simple_form for={@form} phx-submit="send" class="u-justify-self-end u-width-75">
-        <.ui_input
-          type="textarea"
-          form={@form}
-          field={:content}
-          label="Message"
-          hidden_label={true}
-          maxlength="5000"
-          placeholder="Ask a question"
+    <main>
+      <div id="messages" phx-update="stream" class="u-grid u-gap-l1">
+        <.chat_message
+          :for={{dom_id, message} <- @streams.messages}
+          id={dom_id}
+          role={message.role}
+          content={message.content}
         />
-        <:actions>
-          <.ui_button type="submit">Send</.ui_button>
-        </:actions>
-      </.simple_form>
+      </div>
+
+      <div class="u-grid u-gap-l1 u-margin-l1-top">
+        <.simple_form for={@form} phx-submit="send" class="u-justify-self-end u-width-75">
+          <.ui_input
+            type="textarea"
+            form={@form}
+            field={:content}
+            label="Message"
+            hidden_label={true}
+            maxlength="5000"
+            placeholder="Ask a question"
+          />
+          <:actions>
+            <.ui_button type="submit">Send</.ui_button>
+          </:actions>
+        </.simple_form>
+      </div>
     </main>
     """
   end
@@ -52,63 +60,54 @@ defmodule ChatbotWeb.ChatLive do
     assigns = assign(assigns, :class, "u-max-width-75 u-bg-white " <> justify_self)
 
     ~H"""
-    <.ui_card class={@class}><%= @content %></.ui_card>
+    <.ui_card id={@id} class={@class}><%= @content %></.ui_card>
     """
   end
 
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
-    messages = socket.assigns.messages
+    messages = Chat.all_messages()
     {:ok, user_message} = Chat.create_message(%{role: :user, content: content})
 
     messages = messages ++ [user_message]
 
-    Chat.stream_assistant_message(messages, self())
-
-    messages = messages ++ [%{role: :assistant, content: ""}]
+    assistant_message = Chat.stream_assistant_message(messages, self())
 
     {:noreply,
      socket
-     |> assign(:messages, messages)
-     |> assign(:form, build_form(Enum.count(messages)))}
+     |> assign(:form, build_form(Enum.count(messages)))
+     |> stream(:messages, [user_message, assistant_message])}
   end
 
   @impl Phoenix.LiveView
   def handle_info({:new_assistant_message, messages}, socket) do
     {:ok, assistant_message} = Chat.request_assistant_message(messages)
 
-    messages = messages ++ [assistant_message]
-    {:noreply, assign(socket, :messages, messages)}
+    {:noreply, stream_insert(socket, :messages, assistant_message)}
   end
 
-  def handle_info({:next_message_delta, nil}, socket) do
-    {:noreply, socket}
+  def handle_info({:next_message_delta, _id, %{status: :complete}}, socket) do
+    {:noreply, assign(socket, :currently_streamed_response, nil)}
   end
 
-  def handle_info({:next_message_delta, message_delta}, socket) do
-    [latest_assistant_message | messages] = Enum.reverse(socket.assigns.messages)
+  def handle_info({:next_message_delta, id, %{status: :incomplete} = message_delta}, socket) do
+    currently_streamed_response = socket.assigns.currently_streamed_response
 
-    latest_assistant_message = %{
-      latest_assistant_message
-      | content: latest_assistant_message.content <> message_delta
-    }
+    merged_message_deltas =
+      LangChain.MessageDelta.merge_delta(currently_streamed_response, message_delta)
 
-    messages = [latest_assistant_message | messages] |> Enum.reverse()
-
-    {:noreply, assign(socket, :messages, messages)}
+    {:noreply,
+     socket
+     |> stream_insert(:messages, %{
+       id: id,
+       role: :assistant,
+       content: merged_message_deltas.content
+     })
+     |> assign(:currently_streamed_response, merged_message_deltas)}
   end
 
   def handle_info({:message_processed, completed_message}, socket) do
-    [latest_assistant_message | messages] = Enum.reverse(socket.assigns.messages)
-
-    latest_assistant_message = %{
-      latest_assistant_message
-      | content: completed_message
-    }
-
-    messages = [latest_assistant_message | messages] |> Enum.reverse()
-
-    {:noreply, assign(socket, :messages, messages)}
+    {:noreply, stream_insert(socket, :messages, completed_message)}
   end
 
   defp build_form(id) do

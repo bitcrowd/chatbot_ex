@@ -14,6 +14,12 @@ defmodule Chatbot.ChatTest do
     test "returns an error when given invalid params" do
       assert {:error, %Ecto.Changeset{}} = Chat.create_message(%{})
     end
+
+    test "creates message with empty content string" do
+      params = params_for(:message, content: "")
+
+      assert {:ok, %Chat.Message{content: ""}} = Chat.create_message(params)
+    end
   end
 
   describe "all_messages/0" do

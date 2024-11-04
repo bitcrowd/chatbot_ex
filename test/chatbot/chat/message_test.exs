@@ -24,17 +24,22 @@ defmodule Chatbot.Chat.MessageTest do
       assert_changeset_valid(Message.changeset(params))
     end
 
+    test "is valid with empty string content" do
+      params = %{"role" => "user", "content" => ""}
+
+      assert_changeset_valid(Message.changeset(params))
+    end
+
     test "is invalid with invalid role" do
       %{"role" => "invalid role", "content" => "hello"}
       |> Message.changeset()
       |> assert_error_on(:role, "is invalid")
     end
 
-    test "requires role and contents" do
+    test "requires role" do
       %{}
       |> Message.changeset()
       |> assert_required_error_on(:role)
-      |> assert_required_error_on(:content)
     end
   end
 end
