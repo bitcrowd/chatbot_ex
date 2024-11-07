@@ -11,13 +11,8 @@ defmodule RuntimeConfig do
     end
   end
 
-  defp default("DATABASE_URL", :dev) do
-    "ecto://postgres:postgres@localhost/chatbot_dev"
-  end
-
-  defp default("DATABASE_URL", :test) do
-    "ecto://postgres:postgres@localhost/chatbot_test#{System.get_env("MIX_TEST_PARTITION")}"
-  end
+  defp default("DATABASE_URL", :dev), do: "ecto://postgres:postgres@localhost/chatbot_dev"
+  defp default("DATABASE_URL", :test), do: "ecto://postgres:postgres@localhost/chatbot_test"
 
   defp default("POOL_SIZE", :dev), do: "10"
   defp default("POOL_SIZE", :test), do: "#{System.schedulers_online() * 2}"
