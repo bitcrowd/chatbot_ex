@@ -68,7 +68,7 @@ defmodule Chatbot.Chat do
       end,
       on_message_processed: fn _chain, %LangChain.Message{} = data ->
         {:ok, completed_message} =
-          Chatbot.Repo.get(Message, assistant_message.id)
+          assistant_message
           |> Message.changeset(%{content: data.content})
           |> Chatbot.Repo.update()
 
