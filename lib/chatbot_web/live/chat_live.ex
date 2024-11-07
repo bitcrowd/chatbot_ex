@@ -8,7 +8,7 @@ defmodule ChatbotWeb.ChatLive do
     socket =
       socket
       |> assign(:messages, Chat.all_messages())
-      |> assign(:form, to_form(%{"message" => ""}, id: "0"))
+      |> assign(:form, to_form(Chat.Message.changeset(%{role: :user, content: ""}), id: "0"))
 
     {:ok, socket}
   end
@@ -31,14 +31,14 @@ defmodule ChatbotWeb.ChatLive do
         <.ui_input
           type="textarea"
           form={@form}
-          field={:message}
+          field={:content}
           label="Message"
           hidden_label={true}
           maxlength="5000"
           placeholder="Ask a question"
         />
         <:actions>
-          <.ui_button>Send</.ui_button>
+          <.ui_button type="submit">Send</.ui_button>
         </:actions>
       </.simple_form>
     </main>
@@ -57,9 +57,9 @@ defmodule ChatbotWeb.ChatLive do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("send", %{"message" => message}, socket) do
+  def handle_event("send", %{"message" => %{"content" => content}}, socket) do
     messages = socket.assigns.messages
-    {:ok, user_message} = Chat.create_message(%{role: :user, content: message})
+    {:ok, user_message} = Chat.create_message(%{role: :user, content: content})
 
     messages = messages ++ [user_message]
 
@@ -70,7 +70,10 @@ defmodule ChatbotWeb.ChatLive do
     {:noreply,
      socket
      |> assign(:messages, messages)
-     |> assign(:form, to_form(%{"message" => ""}, id: "#{Enum.count(messages)}"))}
+     |> assign(
+       :form,
+       to_form(Chat.Message.changeset(%{role: :user, content: ""}), id: "#{Enum.count(messages)}")
+     )}
   end
 
   @impl Phoenix.LiveView
