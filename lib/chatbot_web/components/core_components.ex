@@ -3,6 +3,7 @@ defmodule ChatbotWeb.CoreComponents do
   Provides core UI components.
   """
   use Phoenix.Component
+  use Gettext, backend: ChatbotWeb.Gettext
   import BitstylesPhoenix.Component.Flash
 
   @doc """
