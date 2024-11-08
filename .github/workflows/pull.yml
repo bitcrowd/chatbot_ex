@@ -84,3 +84,13 @@ jobs:
     # Step: Execute the tests.
     - name: Run tests
       run: mix test
+
+  assets:
+    runs-on: ubuntu-latest
+    name: Assets
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+      - run: cd assets && npm ci
