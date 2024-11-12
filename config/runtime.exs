@@ -20,7 +20,7 @@ defmodule RuntimeConfig do
   end
 
   defp default("POOL_SIZE", :dev), do: "10"
-  defp default("POOL_SIZE", :est), do: "#{System.schedulers_online() * 2}"
+  defp default("POOL_SIZE", :test), do: "#{System.schedulers_online() * 2}"
 
   defp default("ECTO_IPV6", _env), do: false
 
