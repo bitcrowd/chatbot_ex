@@ -10,6 +10,10 @@ defmodule Chatbot.ChatTest do
 
       assert {:ok, %Chat.Message{}} = Chat.create_message(params)
     end
+
+    test "returns an error when given invalid params" do
+      assert {:error, %Ecto.Changeset{}} = Chat.create_message(%{})
+    end
   end
 
   describe "all_messages/0" do
