@@ -10,9 +10,9 @@ defmodule Chatbot.Chat.MessageTest do
     end
 
     test "is invalid with invalid role" do
-      params = %{"role" => "invalid role", "content" => "hello"}
-
-      assert "is invalid" in errors_on(Message.changeset(params)).role
+      %{"role" => "invalid role", "content" => "hello"}
+      |> Message.changeset()
+      |> assert_error_on(:role, "is invalid")
     end
   end
 end
