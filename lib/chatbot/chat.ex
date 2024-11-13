@@ -5,6 +5,11 @@ defmodule Chatbot.Chat do
   import Ecto.Query, only: [from: 2]
   alias Chatbot.{Chat.Message, LLMMock}
   alias LangChain.Chains.LLMChain
+  # There is currently a bug in the LangChain type specs:
+  # `add_callback/2` expects a map with all possible handler functions.
+  # See:
+  # https://hexdocs.pm/langchain/0.3.0-rc.0/LangChain.Chains.ChainCallbacks.html#t:chain_callback_handler/0
+  @dialyzer {:nowarn_function, stream_assistant_message: 2}
 
   def create_message(attrs) do
     attrs
