@@ -35,3 +35,6 @@ chatbot-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Ignore dialyzer plts
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
