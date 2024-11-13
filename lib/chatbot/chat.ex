@@ -4,6 +4,7 @@ defmodule Chatbot.Chat do
   """
   import Ecto.Query, only: [from: 2]
   alias Chatbot.{Chat.Message, LLMMock}
+  alias LangChain.Chains.LLMChain
 
   def create_message(attrs) do
     attrs
@@ -16,10 +17,8 @@ defmodule Chatbot.Chat do
          stream: true
        })
 
-  @chain LangChain.Chains.LLMChain.new!(%{llm: @llm})
-         |> LangChain.Chains.LLMChain.add_message(
-           LangChain.Message.new_system!("You give fun responses.")
-         )
+  @chain LLMChain.new!(%{llm: @llm})
+         |> LLMChain.add_message(LangChain.Message.new_system!("You give fun responses."))
 
   def request_assistant_message(messages) do
     maybe_mock_llm()
@@ -33,8 +32,8 @@ defmodule Chatbot.Chat do
       end)
 
     @chain
-    |> LangChain.Chains.LLMChain.add_messages(messages)
-    |> LangChain.Chains.LLMChain.run()
+    |> LLMChain.add_messages(messages)
+    |> LLMChain.run()
     |> case do
       {:ok, _chain, response} ->
         create_message(%{role: :assistant, content: response.content})
@@ -67,10 +66,10 @@ defmodule Chatbot.Chat do
       maybe_mock_llm(stream: true)
 
       @chain
-      |> LangChain.Chains.LLMChain.add_callback(handler)
-      |> LangChain.Chains.LLMChain.add_llm_callback(handler)
-      |> LangChain.Chains.LLMChain.add_messages(messages)
-      |> LangChain.Chains.LLMChain.run()
+      |> LLMChain.add_callback(handler)
+      |> LLMChain.add_llm_callback(handler)
+      |> LLMChain.add_messages(messages)
+      |> LLMChain.run()
     end)
   end
 
@@ -78,7 +77,7 @@ defmodule Chatbot.Chat do
     if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock(opts)
   end
 
-  def all_messages() do
+  def all_messages do
     Chatbot.Repo.all(from(m in Message, order_by: m.inserted_at))
   end
 end
