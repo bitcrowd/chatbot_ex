@@ -75,7 +75,8 @@ defmodule Chatbot.MixProject do
       "assets.deploy": [
         "cmd --cd assets node build.js --deploy",
         "phx.digest"
-      ]
+      ],
+      lint: ["format --check-formatted", "credo --strict", "dialyzer --format dialyxir"]
     ]
   end
 end
