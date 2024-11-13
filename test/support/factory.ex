@@ -1,4 +1,5 @@
 defmodule Chatbot.Factory do
+  @moduledoc false
   use ExMachina.Ecto, repo: Chatbot.Repo
 
   def message_factory do

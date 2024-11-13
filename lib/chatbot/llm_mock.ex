@@ -1,4 +1,14 @@
 defmodule Chatbot.LLMMock do
+  @moduledoc """
+  This module provides functions to mock the messages from the
+  LLM.
+
+  Note:
+  We are using `set_api_override/1` from LangChain.Utils.ApiOverride
+  for this, which uses the process dictionary. So make sure to call
+  the functions of this module from within the process that calls
+  `LangChain.Chains.LLMChain.run/0`.
+  """
   import LangChain.Utils.ApiOverride
   alias LangChain.{Message, MessageDelta}
 

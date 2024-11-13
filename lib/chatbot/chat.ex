@@ -1,4 +1,7 @@
 defmodule Chatbot.Chat do
+  @moduledoc """
+  Context for chat related functions.
+  """
   import Ecto.Query, only: [from: 2]
   alias Chatbot.{Chat.Message, LLMMock}
 
@@ -29,12 +32,15 @@ defmodule Chatbot.Chat do
         end
       end)
 
-    with {:ok, _chain, response} <-
-           LangChain.Chains.LLMChain.add_messages(@chain, messages)
-           |> LangChain.Chains.LLMChain.run() do
-      create_message(%{role: :assistant, content: response.content})
-    else
-      _error -> {:error, "I failed, I'm sorry"}
+    @chain
+    |> LangChain.Chains.LLMChain.add_messages(messages)
+    |> LangChain.Chains.LLMChain.run()
+    |> case do
+      {:ok, _chain, response} ->
+        create_message(%{role: :assistant, content: response.content})
+
+      _error ->
+        {:error, "I failed, I'm sorry"}
     end
   end
 
