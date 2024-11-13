@@ -34,6 +34,7 @@ defmodule Chatbot.MixProject do
     [
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:langchain, "~> 0.3.0-rc.0"},
       {:phoenix, "~> 1.7.14"},
       {:phoenix_ecto, "~> 4.5"},
