@@ -16,6 +16,9 @@ defmodule Chatbot.Chat.Message do
     timestamps()
   end
 
+  @doc """
+  Changeset for creating or updating a Message.
+  """
   @spec changeset(map()) :: Ecto.Changeset.t()
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(message \\ %__MODULE__{}, attrs) do

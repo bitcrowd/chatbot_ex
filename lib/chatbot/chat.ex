@@ -11,6 +11,9 @@ defmodule Chatbot.Chat do
   # https://hexdocs.pm/langchain/0.3.0-rc.0/LangChain.Chains.ChainCallbacks.html#t:chain_callback_handler/0
   @dialyzer {:nowarn_function, stream_assistant_message: 2}
 
+  @doc """
+  Creates a message.
+  """
   @spec create_message(map()) :: {:ok, Message.t()} | {:error, Ecto.Changeset.t()}
   def create_message(attrs) do
     attrs
@@ -26,6 +29,10 @@ defmodule Chatbot.Chat do
   @chain LLMChain.new!(%{llm: @llm})
          |> LLMChain.add_message(LangChain.Message.new_system!("You give fun responses."))
 
+  @doc """
+  Sends a query containing the given messages to the LLM and
+  saves the response as an assistant message.
+  """
   @spec request_assistant_message([Message.t()]) ::
           {:ok, Message.t()} | {:error, String.t() | Ecto.Changeset.t()}
   def request_assistant_message(messages) do
@@ -51,6 +58,12 @@ defmodule Chatbot.Chat do
     end
   end
 
+  @doc """
+  Sends a query containing the given messages to the LLM and
+  streams the partial responses to process with the given pid.
+
+  Once the full message was processed, it is saved as an assistant message.
+  """
   @spec stream_assistant_message([Message.t()], pid()) :: :ok
   def stream_assistant_message(messages, receiver) do
     handler = %{
@@ -88,6 +101,9 @@ defmodule Chatbot.Chat do
     if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock(opts)
   end
 
+  @doc """
+  Lists all messages ordered by insertion date.
+  """
   @spec all_messages() :: [Message.t()]
   def all_messages do
     Chatbot.Repo.all(from(m in Message, order_by: m.inserted_at))
