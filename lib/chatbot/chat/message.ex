@@ -5,6 +5,8 @@ defmodule Chatbot.Chat.Message do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   @message_types [:user, :assistant, :system]
 
   schema "messages" do
@@ -14,6 +16,8 @@ defmodule Chatbot.Chat.Message do
     timestamps()
   end
 
+  @spec changeset(map()) :: Ecto.Changeset.t()
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(message \\ %__MODULE__{}, attrs) do
     message
     |> cast(attrs, [:role, :content])
