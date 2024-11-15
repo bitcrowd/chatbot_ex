@@ -21,6 +21,11 @@ defmodule ChatbotWeb.ChatLive do
     <header>
       <.ui_page_title class="u-fg-brand-1 u-margin-l3-bottom">
         Chatbot
+        <:action>
+          <.ui_button phx-click="clear-all" data-confirm="Are you sure?">
+            Clear all
+          </.ui_button>
+        </:action>
       </.ui_page_title>
     </header>
 
@@ -74,6 +79,12 @@ defmodule ChatbotWeb.ChatLive do
        |> assign(:form, build_form())
        |> stream(:messages, [user_message, assistant_message])}
     end
+  end
+
+  def handle_event("clear-all", _params, socket) do
+    :ok = Chat.delete_all_messages()
+
+    {:noreply, push_navigate(socket, to: ~p"/")}
   end
 
   @impl Phoenix.LiveView

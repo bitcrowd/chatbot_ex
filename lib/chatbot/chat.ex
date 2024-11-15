@@ -3,7 +3,7 @@ defmodule Chatbot.Chat do
   Context for chat related functions.
   """
   import Ecto.Query, only: [from: 2]
-  alias Chatbot.{Chat.Message, LLMMock}
+  alias Chatbot.{Chat.Message, LLMMock, Repo}
   alias LangChain.Chains.LLMChain
   # There is currently a bug in the LangChain type specs:
   # `add_callback/2` expects a map with all possible handler functions.
@@ -18,7 +18,7 @@ defmodule Chatbot.Chat do
   def create_message(attrs) do
     attrs
     |> Message.changeset()
-    |> Chatbot.Repo.insert()
+    |> Repo.insert()
   end
 
   @llm LangChain.ChatModels.ChatOpenAI.new!(%{
@@ -72,7 +72,7 @@ defmodule Chatbot.Chat do
         {:ok, completed_message} =
           assistant_message
           |> Message.changeset(%{content: data.content})
-          |> Chatbot.Repo.update()
+          |> Repo.update()
 
         send(receiver, {:message_processed, completed_message})
       end
@@ -104,8 +104,14 @@ defmodule Chatbot.Chat do
   @doc """
   Lists all messages ordered by insertion date.
   """
-  @spec all_messages() :: [Message.t()]
+  @spec all_messages :: [Message.t()]
   def all_messages do
-    Chatbot.Repo.all(from(m in Message, order_by: m.inserted_at))
+    Repo.all(from(m in Message, order_by: m.inserted_at))
+  end
+
+  @spec delete_all_messages :: :ok
+  def delete_all_messages do
+    {_count, nil} = Repo.delete_all(Message)
+    :ok
   end
 end

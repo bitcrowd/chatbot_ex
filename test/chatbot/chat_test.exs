@@ -31,4 +31,15 @@ defmodule Chatbot.ChatTest do
       assert Chat.all_messages() == [older_message, latest_message]
     end
   end
+
+  describe "delete_all_messages/0" do
+    test "deletes all messages" do
+      insert(:message, role: :user)
+      insert(:message, role: :assistant)
+
+      assert Chat.delete_all_messages() == :ok
+
+      assert Repo.all(Chat.Message) == []
+    end
+  end
 end
