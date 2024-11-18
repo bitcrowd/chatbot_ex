@@ -17,7 +17,7 @@ defmodule Chatbot.Chat.MessageTest do
     end
   end
 
-  describe "changeset/2" do
+  describe "changeset/1" do
     test "is valid with valid params" do
       params = %{"role" => "user", "content" => "hello"}
 
@@ -40,6 +40,27 @@ defmodule Chatbot.Chat.MessageTest do
       %{}
       |> Message.changeset()
       |> assert_required_error_on(:role)
+    end
+  end
+
+  describe "changeset/2" do
+    test "is valid with valid params" do
+      message = insert(:message, role: :assistant, content: "")
+      params = %{"content" => "hello"}
+
+      message
+      |> Message.changeset(params)
+      |> assert_changeset_valid()
+    end
+
+    test "role is immutable" do
+      message = insert(:message, role: :assistant, content: "")
+      params = %{"role" => "user", "content" => "Hello"}
+
+      message
+      |> Message.changeset(params)
+      |> refute_changeset_valid()
+      |> assert_error_on(:role, ["cannot be changed", :immutable])
     end
   end
 end

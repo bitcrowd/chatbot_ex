@@ -21,6 +21,12 @@ defmodule Chatbot.Chat do
     |> Repo.insert()
   end
 
+  def update_message!(message, attrs) do
+    message
+    |> Message.changeset(attrs)
+    |> Repo.update!()
+  end
+
   @llm LangChain.ChatModels.ChatOpenAI.new!(%{
          model: "gpt-4o-mini",
          stream: true
@@ -69,10 +75,7 @@ defmodule Chatbot.Chat do
         send(receiver, {:next_message_delta, assistant_message.id, data})
       end,
       on_message_processed: fn _chain, %LangChain.Message{} = data ->
-        {:ok, completed_message} =
-          assistant_message
-          |> Message.changeset(%{content: data.content})
-          |> Repo.update()
+        completed_message = update_message!(assistant_message, %{content: data.content})
 
         send(receiver, {:message_processed, completed_message})
       end

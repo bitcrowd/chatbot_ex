@@ -22,6 +22,23 @@ defmodule Chatbot.ChatTest do
     end
   end
 
+  describe "update_message!/2" do
+    test "updates a message when given valid params" do
+      message = insert(:message)
+
+      assert %{content: "New content"} =
+               Chat.update_message!(message, %{content: "New content"})
+    end
+
+    test "raises when given invalid params" do
+      message = insert(:message)
+
+      assert_raise Ecto.InvalidChangesetError, fn ->
+        Chat.update_message!(message, %{role: "invalid"})
+      end
+    end
+  end
+
   describe "all_messages/0" do
     test "returns all messages sorted by inserted_at" do
       now = DateTime.utc_now()

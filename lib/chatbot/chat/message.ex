@@ -4,6 +4,7 @@ defmodule Chatbot.Chat.Message do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import BitcrowdEcto.Changeset
 
   @type t :: %__MODULE__{}
 
@@ -28,5 +29,6 @@ defmodule Chatbot.Chat.Message do
     # we cannot require the content, as
     # validate_required still considers "" as empty
     |> validate_required([:role])
+    |> validate_immutable(:role)
   end
 end
