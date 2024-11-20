@@ -66,17 +66,14 @@ defmodule ChatbotWeb.ChatLive do
 
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
-    messages = Chat.all_messages()
-    {:ok, user_message} = Chat.create_message(%{role: :user, content: content})
-
-    messages = messages ++ [user_message]
-
-    assistant_message = Chat.stream_assistant_message(messages, self())
-
-    {:noreply,
-     socket
-     |> assign(:form, build_form(Enum.count(messages)))
-     |> stream(:messages, [user_message, assistant_message])}
+    with {:ok, user_message} <- Chat.create_message(%{role: :user, content: content}),
+         messages <- Chat.all_messages(),
+         assistant_message <- Chat.stream_assistant_message(messages, self()) do
+      {:noreply,
+       socket
+       |> assign(:form, build_form(Enum.count(messages)))
+       |> stream(:messages, [user_message, assistant_message])}
+    end
   end
 
   @impl Phoenix.LiveView
