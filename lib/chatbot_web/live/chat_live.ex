@@ -103,8 +103,8 @@ defmodule ChatbotWeb.ChatLive do
      |> assign(:currently_streamed_response, merged_message_deltas)}
   end
 
-  def handle_info({:message_processed, _completed_message}, socket) do
-    {:noreply, socket}
+  def handle_info({:message_processed, completed_message}, socket) do
+    {:noreply, stream_insert(socket, :messages, completed_message)}
   end
 
   defp build_form(id) do
