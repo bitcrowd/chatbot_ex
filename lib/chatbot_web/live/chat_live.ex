@@ -1,7 +1,8 @@
 defmodule ChatbotWeb.ChatLive do
   use ChatbotWeb, :live_view
-  alias Chatbot.Chat
   import ChatbotWeb.CoreComponents
+  import BitcrowdEcto.Random, only: [uuid: 0]
+  alias Chatbot.Chat
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
@@ -9,7 +10,7 @@ defmodule ChatbotWeb.ChatLive do
       socket
       |> stream(:messages, Chat.all_messages())
       |> assign(:currently_streamed_response, nil)
-      |> assign(:form, build_form(0))
+      |> assign(:form, build_form())
 
     {:ok, socket}
   end
@@ -71,7 +72,7 @@ defmodule ChatbotWeb.ChatLive do
          assistant_message <- Chat.stream_assistant_message(messages, self()) do
       {:noreply,
        socket
-       |> assign(:form, build_form(Enum.count(messages)))
+       |> assign(:form, build_form())
        |> stream(:messages, [user_message, assistant_message])}
     end
   end
@@ -107,12 +108,12 @@ defmodule ChatbotWeb.ChatLive do
     {:noreply, stream_insert(socket, :messages, completed_message)}
   end
 
-  defp build_form(id) do
+  defp build_form do
     %{role: :user, content: ""}
     |> Chat.Message.changeset()
     # we need to give the form an ID, so that
     # PhoenixLiveView knows that this is a new form
     # for a new message and clears the input
-    |> to_form(id: "message-#{id}")
+    |> to_form(id: uuid())
   end
 end
