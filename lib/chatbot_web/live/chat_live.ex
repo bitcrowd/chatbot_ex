@@ -68,8 +68,7 @@ defmodule ChatbotWeb.ChatLive do
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
     with {:ok, user_message} <- Chat.create_message(%{role: :user, content: content}),
-         messages <- Chat.all_messages(),
-         assistant_message <- Chat.stream_assistant_message(messages, self()) do
+         assistant_message <- Chat.stream_assistant_message(self()) do
       {:noreply,
        socket
        |> assign(:form, build_form())

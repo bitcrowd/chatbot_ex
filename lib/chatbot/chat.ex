@@ -9,7 +9,7 @@ defmodule Chatbot.Chat do
   # `add_callback/2` expects a map with all possible handler functions.
   # See:
   # https://hexdocs.pm/langchain/0.3.0-rc.0/LangChain.Chains.ChainCallbacks.html#t:chain_callback_handler/0
-  @dialyzer {:nowarn_function, stream_assistant_message: 2}
+  @dialyzer {:nowarn_function, stream_assistant_message: 1}
 
   @doc """
   Creates a message.
@@ -58,8 +58,10 @@ defmodule Chatbot.Chat do
 
   Once the full message was processed, it is saved as an assistant message.
   """
-  @spec stream_assistant_message([Message.t()], pid()) :: Message.t()
-  def stream_assistant_message(messages, receiver) do
+  @spec stream_assistant_message(pid()) :: Message.t()
+  def stream_assistant_message(receiver) do
+    messages = all_messages() |> Enum.map(&to_langchain_message/1)
+
     {:ok, assistant_message} = create_message(%{role: :assistant, content: ""})
 
     handler = %{
@@ -75,8 +77,6 @@ defmodule Chatbot.Chat do
         send(receiver, {:message_processed, completed_message})
       end
     }
-
-    messages = Enum.map(messages, &to_langchain_message/1)
 
     Task.Supervisor.start_child(Chatbot.TaskSupervisor, fn ->
       maybe_mock_llm(stream: true)
