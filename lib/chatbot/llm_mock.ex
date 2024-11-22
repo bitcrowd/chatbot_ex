@@ -14,9 +14,9 @@ defmodule Chatbot.LLMMock do
 
   def mock(opts) do
     if Keyword.get(opts, :stream, false) do
-      do_mock()
-    else
       do_mock_stream()
+    else
+      do_mock()
     end
   end
 
