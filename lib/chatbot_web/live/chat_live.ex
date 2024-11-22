@@ -4,6 +4,8 @@ defmodule ChatbotWeb.ChatLive do
   import BitcrowdEcto.Random, only: [uuid: 0]
   alias Chatbot.Chat
 
+  @stream_llm Application.compile_env!(:chatbot, :stream_llm)
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     socket =
@@ -73,7 +75,7 @@ defmodule ChatbotWeb.ChatLive do
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
     with {:ok, user_message} <- Chat.create_message(%{role: :user, content: content}),
-         assistant_message <- Chat.stream_assistant_message(self()) do
+         {:ok, assistant_message} <- request_assistant_message() do
       {:noreply,
        socket
        |> assign(:form, build_form())
@@ -87,13 +89,13 @@ defmodule ChatbotWeb.ChatLive do
     {:noreply, push_navigate(socket, to: ~p"/")}
   end
 
-  @impl Phoenix.LiveView
-  def handle_info({:new_assistant_message, messages}, socket) do
-    {:ok, assistant_message} = Chat.request_assistant_message(messages)
-
-    {:noreply, stream_insert(socket, :messages, assistant_message)}
+  if @stream_llm do
+    defp request_assistant_message, do: Chat.stream_assistant_message(self())
+  else
+    defp request_assistant_message, do: Chat.request_assistant_message()
   end
 
+  @impl Phoenix.LiveView
   def handle_info({:next_message_delta, _id, %{status: :complete}}, socket) do
     {:noreply, assign(socket, :currently_streamed_response, nil)}
   end

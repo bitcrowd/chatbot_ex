@@ -11,6 +11,8 @@ defmodule Chatbot.Chat do
   # https://hexdocs.pm/langchain/0.3.0-rc.0/LangChain.Chains.ChainCallbacks.html#t:chain_callback_handler/0
   @dialyzer {:nowarn_function, stream_assistant_message: 1}
 
+  @stream_llm Application.compile_env!(:chatbot, :stream_llm)
+
   @doc """
   Creates a message.
   """
@@ -29,22 +31,22 @@ defmodule Chatbot.Chat do
 
   @llm LangChain.ChatModels.ChatOpenAI.new!(%{
          model: "gpt-4o-mini",
-         stream: true
+         stream: @stream_llm
        })
 
   @chain LLMChain.new!(%{llm: @llm})
          |> LLMChain.add_message(LangChain.Message.new_system!("You give fun responses."))
 
   @doc """
-  Sends a query containing the given messages to the LLM and
+  Sends a query to the LLM and
   saves the response as an assistant message.
   """
-  @spec request_assistant_message([Message.t()]) ::
+  @spec request_assistant_message ::
           {:ok, Message.t()} | {:error, String.t() | Ecto.Changeset.t()}
-  def request_assistant_message(messages) do
+  def request_assistant_message do
     maybe_mock_llm()
 
-    messages = Enum.map(messages, &to_langchain_message/1)
+    messages = all_messages() |> Enum.map(&to_langchain_message/1)
 
     @chain
     |> LLMChain.add_messages(messages)
@@ -59,12 +61,12 @@ defmodule Chatbot.Chat do
   end
 
   @doc """
-  Sends a query containing the given messages to the LLM and
+  Sends a query to the LLM and
   streams the partial responses to process with the given pid.
 
   Once the full message was processed, it is saved as an assistant message.
   """
-  @spec stream_assistant_message(pid()) :: Message.t()
+  @spec stream_assistant_message(pid()) :: {:ok, Message.t()}
   def stream_assistant_message(receiver) do
     messages = all_messages() |> Enum.map(&to_langchain_message/1)
 
@@ -91,7 +93,7 @@ defmodule Chatbot.Chat do
       |> LLMChain.run()
     end)
 
-    assistant_message
+    {:ok, assistant_message}
   end
 
   defp to_langchain_message(%{role: :user, content: content}),

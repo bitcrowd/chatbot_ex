@@ -8,5 +8,6 @@ import Config
 
 import_config "config/endpoint.exs"
 import_config "config/logger.exs"
+import_config "config/llm.exs"
 import_config "config/phoenix.exs"
 import_config "config/repo.exs"
