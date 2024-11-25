@@ -59,4 +59,63 @@ defmodule Chatbot.ChatTest do
       assert Repo.all(Chat.Message) == []
     end
   end
+
+  describe "request_assistant_message/0" do
+    test "returns assistant message" do
+      insert(:message, role: :user)
+
+      assert {:ok, message} = Chat.request_assistant_message()
+
+      assert message.role == :assistant
+      assert message.content =~ "Thanks for your question"
+    end
+  end
+
+  describe "stream_assistant_message/1" do
+    test "returns empty assistant message and streams message deltas" do
+      insert(:message, role: :user)
+
+      assert {:ok, message} = Chat.stream_assistant_message(self())
+
+      assert message.role == :assistant
+      assert message.content == ""
+      message_id = message.id
+
+      assert_receive({:next_message_delta, ^message_id, %{content: nil, status: :incomplete}})
+
+      assert_receive(
+        {:next_message_delta, ^message_id,
+         %{content: "Thanks for your question. ", status: :incomplete}}
+      )
+
+      assert_receive(
+        {:next_message_delta, ^message_id,
+         %{content: "Let me think about that. ", status: :incomplete}}
+      )
+
+      assert_receive({:next_message_delta, ^message_id, %{content: "... ", status: :incomplete}})
+
+      assert_receive(
+        {:next_message_delta, ^message_id,
+         %{content: "I don't have an answer right now. ", status: :incomplete}}
+      )
+
+      assert_receive(
+        {:next_message_delta, ^message_id,
+         %{content: "Please try another question. Maybe I can help with that.", status: :complete}}
+      )
+
+      assert_receive(
+        {:message_processed,
+         %Chat.Message{
+           content:
+             "Thanks for your question. Let me think about that. ... I don't have an answer right now. Please try another question. Maybe I can help with that.",
+           role: :assistant
+         }}
+      )
+
+      assert Repo.reload(message).content ==
+               "Thanks for your question. Let me think about that. ... I don't have an answer right now. Please try another question. Maybe I can help with that."
+    end
+  end
 end
