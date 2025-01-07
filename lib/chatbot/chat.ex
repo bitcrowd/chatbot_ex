@@ -64,7 +64,7 @@ defmodule Chatbot.Chat do
   """
   @spec stream_assistant_message(pid(), [Message.t()], Message.t()) :: Message.t()
   def stream_assistant_message(receiver, messages, assistant_message) do
-    messages = Enum.map(messages, &to_langchain_message/1) |> dbg()
+    messages = Enum.map(messages, &to_langchain_message/1)
 
     handler = %{
       on_llm_new_delta: fn _model, %LangChain.MessageDelta{} = data ->
