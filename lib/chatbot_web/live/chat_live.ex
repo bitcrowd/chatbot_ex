@@ -2,7 +2,7 @@ defmodule ChatbotWeb.ChatLive do
   use ChatbotWeb, :live_view
   import ChatbotWeb.CoreComponents
   import BitcrowdEcto.Random, only: [uuid: 0]
-  alias Chatbot.{Chat, Chat.Message, Repo}
+  alias Chatbot.{Chat, Repo}
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
