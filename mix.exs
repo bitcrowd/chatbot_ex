@@ -33,6 +33,9 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:readability, "~> 0.12.1"},
+      {:hop, "~> 0.1"},
+      {:req, "~> 0.5"},
       {:pgvector, "~> 0.3.0"},
       {:ecto, "~> 3.0"},
       {:exla, "~> 0.9.1"},
@@ -52,7 +55,7 @@ defmodule Chatbot.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # TODO bump on release to {:phoenix_live_view, "~> 1.0.0"},
       {:phoenix_live_view, "~> 1.0.0-rc.1", override: true},
-      {:floki, ">= 0.30.0", only: :test},
+      {:floki, ">= 0.30.0"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
