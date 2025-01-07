@@ -75,6 +75,6 @@ config :chatbot, ChatbotWeb.Endpoint,
 
 config :chatbot, :dns_cluster_query, RuntimeConfig.get("DNS_CLUSTER_QUERY")
 
-config :langchain, openai_key: "your key"
+config :langchain, openai_key: RuntimeConfig.get("OPENAI_API_KEY")
 
 config :chatbot, :mock_llm_api, RuntimeConfig.get("MOCK_LLM_API", cast: :boolean)

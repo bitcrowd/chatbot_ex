@@ -1,5 +1,7 @@
 import Config
 
+config :chatbot, Chatbot.Repo, types: Chatbot.PostgrexTypes
+
 config :chatbot,
   ecto_repos: [Chatbot.Repo],
   generators: [timestamp_type: :utc_datetime]

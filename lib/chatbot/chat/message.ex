@@ -13,6 +13,7 @@ defmodule Chatbot.Chat.Message do
   schema "messages" do
     field :role, Ecto.Enum, values: @message_types
     field :content, :string
+    field :sources, {:array, :string}
 
     timestamps()
   end
@@ -24,7 +25,7 @@ defmodule Chatbot.Chat.Message do
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(message \\ %__MODULE__{}, attrs) do
     message
-    |> cast(attrs, [:role])
+    |> cast(attrs, [:role, :sources])
     |> cast(attrs, [:content], empty_values: [nil])
     # we cannot require the content, as
     # validate_required still considers "" as empty

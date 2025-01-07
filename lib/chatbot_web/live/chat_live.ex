@@ -2,7 +2,7 @@ defmodule ChatbotWeb.ChatLive do
   use ChatbotWeb, :live_view
   import ChatbotWeb.CoreComponents
   import BitcrowdEcto.Random, only: [uuid: 0]
-  alias Chatbot.Chat
+  alias Chatbot.{Chat, Chat.Message, Repo}
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
@@ -36,6 +36,7 @@ defmodule ChatbotWeb.ChatLive do
           id={dom_id}
           role={message.role}
           content={message.content}
+          sources={message.sources}
         />
       </div>
 
@@ -66,14 +67,36 @@ defmodule ChatbotWeb.ChatLive do
     assigns = assign(assigns, :class, "u-max-width-75 u-bg-white " <> justify_self)
 
     ~H"""
-    <.ui_card id={@id} class={@class}><%= @content %></.ui_card>
+    <.ui_card id={@id} class={@class}>
+      <%= @content %>
+
+      <details :if={@sources}>
+        <summary>Sources</summary>
+        <ol>
+          <li :for={source <- @sources}>
+            <%= source %>
+          </li>
+        </ol>
+      </details>
+    </.ui_card>
     """
   end
 
   @impl Phoenix.LiveView
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
+    messages = Chat.all_messages()
+
     with {:ok, user_message} <- Chat.create_message(%{role: :user, content: content}),
-         assistant_message <- Chat.stream_assistant_message(self()) do
+         {:ok, augmented_user_message, augmentation} <- augment_user_message(user_message),
+         messages =
+           Enum.map(messages ++ [augmented_user_message], &Chat.to_langchain_message/1),
+         {:ok, assistant_message} <-
+           Chat.create_message(%{
+             role: :assistant,
+             content: "",
+             sources: augmentation.context_sources
+           }),
+         :ok <- Chat.stream_assistant_message(self(), messages, assistant_message) do
       {:noreply,
        socket
        |> assign(:form, build_form())
@@ -98,7 +121,7 @@ defmodule ChatbotWeb.ChatLive do
     {:noreply, assign(socket, :currently_streamed_response, nil)}
   end
 
-  def handle_info({:next_message_delta, id, %{status: :incomplete} = message_delta}, socket) do
+  def handle_info({:next_message_delta, message, %{status: :incomplete} = message_delta}, socket) do
     currently_streamed_response = socket.assigns.currently_streamed_response
 
     merged_message_deltas =
@@ -106,11 +129,7 @@ defmodule ChatbotWeb.ChatLive do
 
     {:noreply,
      socket
-     |> stream_insert(:messages, %{
-       id: id,
-       role: :assistant,
-       content: merged_message_deltas.content
-     })
+     |> stream_insert(:messages, %{message | content: merged_message_deltas.content})
      |> assign(:currently_streamed_response, merged_message_deltas)}
   end
 
@@ -125,5 +144,13 @@ defmodule ChatbotWeb.ChatLive do
     # PhoenixLiveView knows that this is a new form
     # for a new message and clears the input
     |> to_form(id: uuid())
+  end
+
+  defp augment_user_message(user_message) do
+    %{role: :user, content: query} = user_message
+
+    rag_generation = Chatbot.Rag.build_generation(query)
+
+    {:ok, %{user_message | content: rag_generation.prompt}, rag_generation}
   end
 end

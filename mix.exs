@@ -33,11 +33,17 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:pgvector, "~> 0.3.0"},
+      {:ecto, "~> 3.0"},
+      {:exla, "~> 0.9.1"},
+      {:bumblebee, "~> 0.6.0"},
+      {:text_chunker, "~> 0.3.1"},
+      {:rag, git: "git@github.com:bitcrowd/rag"},
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:langchain, "~> 0.3.0-rc.0"},
+      {:langchain, "~> 0.3.0-rc.1"},
       {:phoenix, "~> 1.7.14"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},

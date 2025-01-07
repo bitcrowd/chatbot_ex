@@ -8,6 +8,12 @@ defmodule Chatbot.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Nx.Serving,
+       [
+         serving: Chatbot.Rag.Serving.build_embedding_serving(),
+         name: Rag.EmbeddingServing,
+         batch_timeout: 100
+       ]},
       {Task.Supervisor, name: Chatbot.TaskSupervisor},
       ChatbotWeb.Telemetry,
       Chatbot.Repo,

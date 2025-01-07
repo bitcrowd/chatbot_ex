@@ -3,13 +3,13 @@ defmodule Chatbot.Chat do
   Context for chat related functions.
   """
   import Ecto.Query, only: [from: 2]
-  alias Chatbot.{Chat.Message, LLMMock, Repo}
+  alias Chatbot.{Chat.Message, Repo}
   alias LangChain.Chains.LLMChain
   # There is currently a bug in the LangChain type specs:
   # `add_callback/2` expects a map with all possible handler functions.
   # See:
   # https://hexdocs.pm/langchain/0.3.0-rc.0/LangChain.Chains.ChainCallbacks.html#t:chain_callback_handler/0
-  @dialyzer {:nowarn_function, stream_assistant_message: 1}
+  @dialyzer {:nowarn_function, stream_assistant_message: 3}
 
   @doc """
   Creates a message.
@@ -42,16 +42,14 @@ defmodule Chatbot.Chat do
   @spec request_assistant_message([Message.t()]) ::
           {:ok, Message.t()} | {:error, String.t() | Ecto.Changeset.t()}
   def request_assistant_message(messages) do
-    maybe_mock_llm()
-
     messages = Enum.map(messages, &to_langchain_message/1)
 
     @chain
     |> LLMChain.add_messages(messages)
     |> LLMChain.run()
     |> case do
-      {:ok, _chain, response} ->
-        create_message(%{role: :assistant, content: response.content})
+      {:ok, chain} ->
+        create_message(%{role: :assistant, content: chain.last_message.content})
 
       _error ->
         {:error, "I failed, I'm sorry"}
@@ -64,15 +62,11 @@ defmodule Chatbot.Chat do
 
   Once the full message was processed, it is saved as an assistant message.
   """
-  @spec stream_assistant_message(pid()) :: Message.t()
-  def stream_assistant_message(receiver) do
-    messages = all_messages() |> Enum.map(&to_langchain_message/1)
-
-    {:ok, assistant_message} = create_message(%{role: :assistant, content: ""})
-
+  @spec stream_assistant_message(pid(), [Message.t()], Message.t()) :: Message.t()
+  def stream_assistant_message(receiver, messages, assistant_message) do
     handler = %{
       on_llm_new_delta: fn _model, %LangChain.MessageDelta{} = data ->
-        send(receiver, {:next_message_delta, assistant_message.id, data})
+        send(receiver, {:next_message_delta, assistant_message, data})
       end,
       on_message_processed: fn _chain, %LangChain.Message{} = data ->
         completed_message = update_message!(assistant_message, %{content: data.content})
@@ -82,8 +76,6 @@ defmodule Chatbot.Chat do
     }
 
     Task.Supervisor.start_child(Chatbot.TaskSupervisor, fn ->
-      maybe_mock_llm(stream: true)
-
       @chain
       |> LLMChain.add_callback(handler)
       |> LLMChain.add_llm_callback(handler)
@@ -91,18 +83,14 @@ defmodule Chatbot.Chat do
       |> LLMChain.run()
     end)
 
-    assistant_message
+    :ok
   end
 
-  defp to_langchain_message(%{role: :user, content: content}),
+  def to_langchain_message(%{role: :user, content: content}),
     do: LangChain.Message.new_user!(content)
 
-  defp to_langchain_message(%{role: :assistant, content: content}),
+  def to_langchain_message(%{role: :assistant, content: content}),
     do: LangChain.Message.new_assistant!(content)
-
-  defp maybe_mock_llm(opts \\ []) do
-    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock(opts)
-  end
 
   @doc """
   Lists all messages ordered by insertion date.
