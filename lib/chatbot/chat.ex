@@ -64,6 +64,8 @@ defmodule Chatbot.Chat do
   """
   @spec stream_assistant_message(pid(), [Message.t()], Message.t()) :: Message.t()
   def stream_assistant_message(receiver, messages, assistant_message) do
+    messages = Enum.map(messages, &to_langchain_message/1) |> dbg()
+
     handler = %{
       on_llm_new_delta: fn _model, %LangChain.MessageDelta{} = data ->
         send(receiver, {:next_message_delta, assistant_message, data})
@@ -75,15 +77,11 @@ defmodule Chatbot.Chat do
       end
     }
 
-    Task.Supervisor.start_child(Chatbot.TaskSupervisor, fn ->
-      @chain
-      |> LLMChain.add_callback(handler)
-      |> LLMChain.add_llm_callback(handler)
-      |> LLMChain.add_messages(messages)
-      |> LLMChain.run()
-    end)
-
-    :ok
+    @chain
+    |> LLMChain.add_callback(handler)
+    |> LLMChain.add_llm_callback(handler)
+    |> LLMChain.add_messages(messages)
+    |> LLMChain.run()
   end
 
   def to_langchain_message(%{role: :user, content: content}),

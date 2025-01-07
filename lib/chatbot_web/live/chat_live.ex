@@ -86,21 +86,26 @@ defmodule ChatbotWeb.ChatLive do
   def handle_event("send", %{"message" => %{"content" => content}}, socket) do
     messages = Chat.all_messages()
 
+    pid = self()
+
     with {:ok, user_message} <- Chat.create_message(%{role: :user, content: content}),
-         {:ok, augmented_user_message, augmentation} <- augment_user_message(user_message),
-         messages =
-           Enum.map(messages ++ [augmented_user_message], &Chat.to_langchain_message/1),
-         {:ok, assistant_message} <-
-           Chat.create_message(%{
-             role: :assistant,
-             content: "",
-             sources: augmentation.context_sources
-           }),
-         :ok <- Chat.stream_assistant_message(self(), messages, assistant_message) do
+         {:ok, assistant_message} <- Chat.create_message(%{role: :assistant, content: ""}) do
       {:noreply,
        socket
        |> assign(:form, build_form())
-       |> stream(:messages, [user_message, assistant_message])}
+       |> stream(:messages, [user_message, assistant_message])
+       |> start_async(:rag, fn ->
+         {:ok, augmented_user_message, augmentation} = augment_user_message(user_message)
+
+         assistant_message =
+           Chat.update_message!(assistant_message, %{sources: augmentation.context_sources})
+
+         Chat.stream_assistant_message(
+           pid,
+           messages ++ [augmented_user_message],
+           assistant_message
+         )
+       end)}
     end
   end
 
@@ -135,6 +140,11 @@ defmodule ChatbotWeb.ChatLive do
 
   def handle_info({:message_processed, completed_message}, socket) do
     {:noreply, stream_insert(socket, :messages, completed_message)}
+  end
+
+  @impl true
+  def handle_async(:rag, _no, socket) do
+    {:noreply, socket}
   end
 
   defp build_form do
