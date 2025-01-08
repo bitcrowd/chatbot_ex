@@ -33,6 +33,7 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:earmark, "~> 1.0"},
       {:readability, "~> 0.12.1"},
       {:hop, "~> 0.1"},
       {:req, "~> 0.5"},

@@ -72,11 +72,19 @@ defmodule ChatbotWeb.ChatLive do
     justify_self =
       if assigns.role == :user, do: "u-justify-self-end", else: "u-justify-self-start"
 
-    assigns = assign(assigns, :class, "u-max-width-75 u-bg-white " <> justify_self)
+    markdown_html =
+      String.trim(assigns.content)
+      |> Earmark.as_html!()
+      |> Phoenix.HTML.raw()
+
+    assigns =
+      assigns
+      |> assign(:class, "u-max-width-75 u-bg-white " <> justify_self)
+      |> assign(:markdown, markdown_html)
 
     ~H"""
     <.ui_card id={@id} class={@class}>
-      <%= @content %>
+      <%= @markdown %>
 
       <details :if={@sources}>
         <summary>Sources</summary>
