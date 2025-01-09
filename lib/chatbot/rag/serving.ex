@@ -15,18 +15,18 @@ defmodule Chatbot.Rag.Serving do
   end
 
   def build_llm_serving() do
-    repo = {:hf, "HuggingFaceTB/SmolLM2-135M-Instruct"}
+    repo = {:hf, "microsoft/phi-4"}
 
     {:ok, model_info} = Bumblebee.load_model(repo)
     {:ok, tokenizer} = Bumblebee.load_tokenizer(repo)
     {:ok, generation_config} = Bumblebee.load_generation_config(repo)
 
-    generation_config = Bumblebee.configure(generation_config, max_new_tokens: 100)
+    generation_config = Bumblebee.configure(generation_config, max_new_tokens: 1024)
 
     Bumblebee.Text.generation(model_info, tokenizer, generation_config,
       compile: [batch_size: 1, sequence_length: 6000],
       defn_options: [compiler: EXLA],
-      stream: false
+      stream: true
     )
   end
 end

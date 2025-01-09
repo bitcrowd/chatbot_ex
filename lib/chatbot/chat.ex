@@ -27,9 +27,12 @@ defmodule Chatbot.Chat do
     |> Repo.update!()
   end
 
-  @llm LangChain.ChatModels.ChatOpenAI.new!(%{
-         model: "gpt-4o-mini",
-         stream: true
+  @llm LangChain.ChatModels.ChatBumblebee.new!(%{
+         serving: Rag.LLMServing,
+         template_format: :im_start,
+         receive_timeout: 30000,
+         stream: true,
+         stream_done: true
        })
 
   @chain LLMChain.new!(%{llm: @llm})

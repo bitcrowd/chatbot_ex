@@ -14,6 +14,12 @@ defmodule Chatbot.Application do
          name: Rag.EmbeddingServing,
          batch_timeout: 100
        ]},
+      {Nx.Serving,
+       [
+         serving: Chatbot.Rag.Serving.build_llm_serving(),
+         name: Rag.LLMServing,
+         batch_timeout: 100
+       ]},
       {Task.Supervisor, name: Chatbot.TaskSupervisor},
       ChatbotWeb.Telemetry,
       Chatbot.Repo,
