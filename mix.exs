@@ -42,7 +42,7 @@ defmodule Chatbot.MixProject do
       {:exla, "~> 0.9.1"},
       {:bumblebee, "~> 0.6.0"},
       {:text_chunker, "~> 0.3.1"},
-      {:rag, git: "git@github.com:bitcrowd/rag"},
+      {:rag, github: "bitcrowd/rag"},
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

@@ -16,3 +16,10 @@ If you just want to try out the chatbot, but you don't have any LLM setup yet, y
 ```
 MOCK_LLM_API=true mix phx.server
 ```
+
+## fly deployment
+you must set SECRET_KEY_BASE to deploy to fly.io
+
+`flyctl secret set SECRET_KEY_BASE=...`
+
+you can ingest data into the system by running `/app/bin/chatbot eval Chatbot.Release.ingest`. 

@@ -24,7 +24,7 @@ defmodule RuntimeConfig do
   defp default("PUBLIC_PORT", :prod), do: "443"
 
   defp default("PUBLIC_HOST", env) when env in [:dev, :test], do: "localhost"
-  defp default("PUBLIC_HOST", :prod), do: "example.com"
+  defp default("PUBLIC_HOST", :prod), do: "chatbot-ex-demo.fly.dev"
 
   defp default("PUBLIC_SCHEME", :prod), do: "https"
   defp default("PUBLIC_SCHEME", _), do: "http"
@@ -69,7 +69,15 @@ public_url_opts = [
 
 config :chatbot, ChatbotWeb.Endpoint,
   secret_key_base: RuntimeConfig.get("SECRET_KEY_BASE"),
-  url: public_url_opts
+  url: [host: "chatbot-ex-demo.fly.dev", port: 443, scheme: "https"],
+  http: [
+    # Enable IPv6 and bind on all interfaces.
+    # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+    # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
+    # for details about using IPv6 vs IPv4 and loopback vs public addresses.
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: 8080
+  ]
 
 # --------------------------------- Misc -------------------------------------
 
