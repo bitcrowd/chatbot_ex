@@ -41,7 +41,9 @@ defmodule Chatbot.MixProject do
       {:pgvector, "~> 0.3.0"},
       {:ecto, "~> 3.0"},
       {:exla, "~> 0.9.1"},
-      {:bumblebee, "~> 0.6.0"},
+      # {:bumblebee, "~> 0.6.0"},
+      {:bumblebee, github: "joelpaulkoch/bumblebee", branch: "jina-embeddings-v2"},
+      # {:bumblebee, github: "joelpaulkoch/bumblebee", branch: " jina-embeddings-v2-base-code "},
       {:text_chunker, "~> 0.3.1"},
       {:rag, github: "bitcrowd/rag"},
       {:ex_machina, "~> 2.8"},
@@ -78,7 +80,7 @@ defmodule Chatbot.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "seed"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       seed: ["run priv/repo/seeds.exs"],
@@ -88,7 +90,8 @@ defmodule Chatbot.MixProject do
         "cmd --cd assets node build.js --deploy",
         "phx.digest"
       ],
-      lint: ["format --check-formatted", "credo --strict", "dialyzer --format dialyxir"]
+      lint: ["format --check-formatted", "credo --strict", "dialyzer --format dialyxir"],
+      ingest: ["run -e 'Chatbot.Rag.ingest(System.argv() |> List.first())'"]
     ]
   end
 end

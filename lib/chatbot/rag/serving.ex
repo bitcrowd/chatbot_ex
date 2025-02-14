@@ -1,9 +1,16 @@
 defmodule Chatbot.Rag.Serving do
-  @embedding_repo {:hf, "thenlper/gte-small" }
+  # @embedding_repo {:hf, "thenlper/gte-small" }
+  @embedding_repo {:hf, "jinaai/jina-embeddings-v2-base-code" }
+  # @embedding_repo {:hf, "jinaai/jina-embeddings-v2-base-en" }
+ 
   @llm_repo {:hf, "microsoft/phi-3.5-mini-instruct"}
+  # @llm_repo {:hf, "meta-llama/Meta-Llama-3-8B"}
 
   def build_embedding_serving() do
-    {:ok, model_info} = Bumblebee.load_model(@embedding_repo)
+    {:ok, model_info} = Bumblebee.load_model(@embedding_repo,
+        spec_overrides: [architecture: :base],
+        params_filename: "model.safetensors"
+    )
 
     {:ok, tokenizer} = Bumblebee.load_tokenizer(@embedding_repo)
 
@@ -11,6 +18,9 @@ defmodule Chatbot.Rag.Serving do
       compile: [batch_size: 64, sequence_length: 512],
       defn_options: [compiler: EXLA],
       output_attribute: :hidden_state,
+      # output_attribute: :hidden_states,
+      # output_attribute: :attentions,
+      # output_attribute: :logits,
       output_pool: :mean_pooling
     )
   end
