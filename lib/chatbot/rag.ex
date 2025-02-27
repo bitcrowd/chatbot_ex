@@ -20,6 +20,7 @@ defmodule Chatbot.Rag do
 
   defp list_text_files(path) do
     path
+    # old, not used when using release mechanism to ingest
     |> Path.join("/**/*.txt")
     |> Path.wildcard()
   end

@@ -1,9 +1,12 @@
 defmodule Chatbot.Rag.Serving do
-  @embedding_repo {:hf, "thenlper/gte-small" }
+  @embedding_repo {:hf, "jinaai/jina-embeddings-v2-base-code"}
   @llm_repo {:hf, "microsoft/phi-3.5-mini-instruct"}
 
   def build_embedding_serving() do
-    {:ok, model_info} = Bumblebee.load_model(@embedding_repo)
+    {:ok, model_info} = Bumblebee.load_model(@embedding_repo,
+      params_filename: "model.safetensors",
+      spec_overrides: [architecture: :base]
+    )
 
     {:ok, tokenizer} = Bumblebee.load_tokenizer(@embedding_repo)
 

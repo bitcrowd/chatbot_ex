@@ -10,7 +10,7 @@ defmodule Chatbot.Repo.Migrations.CreateChunksTable do
       add(:document, :text)
       add(:source, :text)
       add(:chunk, :text)
-      add(:embedding, :vector, size: 384)
+      add(:embedding, :vector, size: 768)
 
       timestamps()
     end

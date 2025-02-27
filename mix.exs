@@ -41,7 +41,7 @@ defmodule Chatbot.MixProject do
       {:pgvector, "~> 0.3.0"},
       {:ecto, "~> 3.0"},
       {:exla, "~> 0.9.1"},
-      {:bumblebee, "~> 0.6.0"},
+      {:bumblebee, github: "joelpaulkoch/bumblebee", branch: "jina-embeddings-v2-base-code"},
       {:text_chunker, "~> 0.3.1"},
       {:rag, github: "bitcrowd/rag"},
       {:ex_machina, "~> 2.8"},
