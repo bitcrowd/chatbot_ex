@@ -35,7 +35,7 @@ defmodule Chatbot.Release do
 
     # add elixir docs
     packages =
-      ["carbonite"]
+      ["ecto"]
       |> Enum.map(
         &%{
           "name" => &1,

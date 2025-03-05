@@ -27,13 +27,18 @@ defmodule Chatbot.Chat do
     |> Repo.update!()
   end
 
-  @llm LangChain.ChatModels.ChatBumblebee.new!(%{
-         serving: Rag.LLMServing,
-         template_format: :im_start,
-         receive_timeout: 30000,
-         stream: true,
-         stream_done: true
-       })
+  # @llm LangChain.ChatModels.ChatBumblebee.new!(%{
+  #        serving: Rag.LLMServing,
+  #        template_format: :im_start,
+  #        receive_timeout: 30000,
+  #        stream: true,
+  #        stream_done: true
+  #      })
+
+   @llm LangChain.ChatModels.ChatOllamaAI.new!(%{
+        model: "llama3.2:latest",
+        stream: true
+      })
 
   @chain LLMChain.new!(%{llm: @llm})
          |> LLMChain.add_message(LangChain.Message.new_system!("You give fun responses."))

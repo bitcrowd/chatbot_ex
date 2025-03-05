@@ -97,7 +97,7 @@ defmodule Chatbot.Rag do
 
     Repo.all(
       from(c in Chatbot.Rag.Chunk,
-        where: fragment("to_tsvector(?) @@ to_tsquery(?)", c.document, ^query),
+        where: fragment("to_tsvector(?) @@ websearch_to_tsquery(?)", c.document, ^query),
         limit: ^limit
       )
     )

@@ -70,7 +70,7 @@ public_url_opts = [
 config :chatbot, ChatbotWeb.Endpoint,
   secret_key_base: RuntimeConfig.get("SECRET_KEY_BASE"),
     #url: [host: "chatbot-ex-demo.fly.dev", port: 443, scheme: "https"],
-    url: [host: "localhost", port: 4000, scheme: "http"],
+    url: [host: "localhost", port: 8080, scheme: "http"],
   http: [
     # Enable IPv6 and bind on all interfaces.
     # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
