@@ -125,15 +125,7 @@ jobs:
 
 
   assets:
-<<<<<<< HEAD
-<<<<<<< HEAD
     runs-on: ubuntu-22.04
-=======
-    runs-on: ubuntu-22
->>>>>>> 0fdc37d ([#INTERNAL-498] Remove repeated sentence in seeds)
-=======
-    runs-on: ubuntu-22.04
->>>>>>> f108e37 ([#INTERNAL-499] Standard system prompt)
     name: Assets
     steps:
       - uses: actions/checkout@v3

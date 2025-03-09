@@ -28,9 +28,9 @@ defmodule Chatbot.Chat do
   end
 
   @llm LangChain.ChatModels.ChatOllamaAI.new!(%{
-    model: "llama3.2:latest",
-    stream: false
-  })
+         model: "llama3.2:latest",
+         stream: false
+       })
 
   @chain LLMChain.new!(%{llm: @llm})
          |> LLMChain.add_message(LangChain.Message.new_system!("You are a helpful assistant."))
