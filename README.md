@@ -16,3 +16,33 @@ If you just want to try out the chatbot, but you don't have any LLM setup yet, y
 ```
 MOCK_LLM_API=true mix phx.server
 ```
+
+### Using Ollama
+
+Currently, the application is set to use Ollama. The model is set to `llama3.2:latest`. Change the it in `lib/chatbot/chat.ex`. 
+
+To use Ollama, you need to have it installed and running on your machine. Look at the [Ollama website](https://ollama.com/) for more information. To pull the model, run the following command:
+
+```
+ollama pull llama3.2:latest
+``` 
+
+### Using OpenAI
+
+To use OpenAI, change the @llm definition in the `lib/chatbot/chat.ex`.
+
+``` 
+@llm LangChain.ChatModels.ChatOllamaAI.new!(%{
+  model: "llama3.2:latest",
+  stream: false
+})
+```
+
+Set the `OPENAI_API_KEY` environment variable to your OpenAI API key.
+
+```
+OPENAI_API_KEY=your_openai_api_key mix phx.server
+```
+
+
+

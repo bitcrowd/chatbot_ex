@@ -27,13 +27,13 @@ defmodule Chatbot.Chat do
     |> Repo.update!()
   end
 
-  @llm LangChain.ChatModels.ChatOpenAI.new!(%{
-         model: "gpt-4o-mini",
-         stream: true
+  @llm LangChain.ChatModels.ChatOllamaAI.new!(%{
+         model: "llama3.2:latest",
+         stream: false
        })
 
   @chain LLMChain.new!(%{llm: @llm})
-         |> LLMChain.add_message(LangChain.Message.new_system!("You give fun responses."))
+         |> LLMChain.add_message(LangChain.Message.new_system!("You are a helpful assistant."))
 
   @doc """
   Sends a query containing the given messages to the LLM and
