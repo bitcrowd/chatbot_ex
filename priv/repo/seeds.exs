@@ -25,14 +25,6 @@ messages =
       role: :assistant,
       content: """
       The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
-      The coniferous Coast redwood (Sequoia sempervirens) is the tallest tree species on earth.
       """
     }
   ]
