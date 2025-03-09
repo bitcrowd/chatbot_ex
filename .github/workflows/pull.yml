@@ -23,6 +23,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+
     runs-on: ubuntu-22.04
     name: Build and test
     strategy:
@@ -125,7 +126,11 @@ jobs:
 
 
   assets:
+<<<<<<< HEAD
     runs-on: ubuntu-22.04
+=======
+    runs-on: ubuntu-22
+>>>>>>> 0fdc37d ([#INTERNAL-498] Remove repeated sentence in seeds)
     name: Assets
     steps:
       - uses: actions/checkout@v3
