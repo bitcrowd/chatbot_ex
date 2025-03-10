@@ -37,9 +37,6 @@ defmodule RuntimeConfig do
 
   defp default("DNS_CLUSTER_QUERY", _env), do: nil
 
-  defp default("MOCK_LLM_API", :test), do: true
-  defp default("MOCK_LLM_API", _env), do: false
-
   defp default(key, env),
     do: raise("environment variable #{key} not set and no default for #{inspect(env)}")
 end
@@ -76,5 +73,3 @@ config :chatbot, ChatbotWeb.Endpoint,
 config :chatbot, :dns_cluster_query, RuntimeConfig.get("DNS_CLUSTER_QUERY")
 
 config :langchain, openai_key: "your key"
-
-config :chatbot, :mock_llm_api, RuntimeConfig.get("MOCK_LLM_API", cast: :boolean)

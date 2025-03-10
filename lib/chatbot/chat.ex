@@ -3,7 +3,7 @@ defmodule Chatbot.Chat do
   Context for chat related functions.
   """
   import Ecto.Query, only: [from: 2]
-  alias Chatbot.{Chat.Message, LLMMock, Repo}
+  alias Chatbot.{Chat.Message, Repo}
   alias LangChain.Chains.LLMChain
   # There is currently a bug in the LangChain type specs:
   # `add_callback/2` expects a map with all possible handler functions.
@@ -42,8 +42,6 @@ defmodule Chatbot.Chat do
   @spec request_assistant_message([Message.t()]) ::
           {:ok, Message.t()} | {:error, String.t() | Ecto.Changeset.t()}
   def request_assistant_message(messages) do
-    maybe_mock_llm()
-
     messages = Enum.map(messages, &to_langchain_message/1)
 
     @chain
@@ -82,11 +80,8 @@ defmodule Chatbot.Chat do
     }
 
     Task.Supervisor.start_child(Chatbot.TaskSupervisor, fn ->
-      maybe_mock_llm(stream: true)
-
       @chain
       |> LLMChain.add_callback(handler)
-      |> LLMChain.add_llm_callback(handler)
       |> LLMChain.add_messages(messages)
       |> LLMChain.run()
     end)
@@ -99,10 +94,6 @@ defmodule Chatbot.Chat do
 
   defp to_langchain_message(%{role: :assistant, content: content}),
     do: LangChain.Message.new_assistant!(content)
-
-  defp maybe_mock_llm(opts \\ []) do
-    if Application.fetch_env!(:chatbot, :mock_llm_api), do: LLMMock.mock(opts)
-  end
 
   @doc """
   Lists all messages ordered by insertion date.

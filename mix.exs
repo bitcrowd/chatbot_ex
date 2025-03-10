@@ -37,7 +37,7 @@ defmodule Chatbot.MixProject do
       {:bitcrowd_ecto, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:langchain, "~> 0.3.0-rc.0"},
+      {:langchain, "~> 0.3.1"},
       {:phoenix, "~> 1.7.14"},
       {:earmark, "~> 1.0"},
       {:phoenix_ecto, "~> 4.5"},
