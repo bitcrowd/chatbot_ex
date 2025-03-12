@@ -10,12 +10,6 @@ defmodule Chatbot.Application do
     children = [
       {Nx.Serving,
        [
-         serving: Chatbot.Rag.Serving.build_llm_serving(),
-         name: Rag.LLMServing,
-         batch_timeout: 100
-       ]},
-      {Nx.Serving,
-       [
          serving: Chatbot.Rag.Serving.build_embedding_serving(),
          name: Rag.EmbeddingServing,
          batch_timeout: 100

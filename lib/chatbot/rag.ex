@@ -5,7 +5,7 @@ defmodule Chatbot.Rag do
   import Ecto.Query
   import Pgvector.Ecto.Query
 
-  @provider Ai.Nx.new(%{embeddings_serving: Rag.EmbeddingServing, text_serving: Rag.LLMServing})
+  @provider Ai.Nx.new(%{embeddings_serving: Rag.EmbeddingServing})
 
   def ingest(path) do
     path
