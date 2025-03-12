@@ -48,8 +48,8 @@ defmodule Chatbot.Chat do
     |> LLMChain.add_messages(messages)
     |> LLMChain.run()
     |> case do
-      {:ok, _chain, response} ->
-        create_message(%{role: :assistant, content: response.content})
+      {:ok, chain} ->
+        create_message(%{role: :assistant, content: chain.last_message.content})
 
       _error ->
         {:error, "I failed, I'm sorry"}
