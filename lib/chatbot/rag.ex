@@ -7,23 +7,40 @@ defmodule Chatbot.Rag do
 
   @provider Ai.Nx.new(%{embeddings_serving: Rag.EmbeddingServing})
 
-  def ingest(path) do
-    path
-    |> load()
-    |> index()
+  def ingest_ecto() do
+    docs_url = "https://repo.hex.pm/docs/ecto-3.12.5.tar.gz"
+
+    code_url = "https://repo.hex.pm/tarballs/ecto-3.12.5.tar"
+
+    req = Req.new(url: docs_url) |> ReqHex.attach()
+    docs_tarball = Req.get!(req).body
+
+    docs =
+      for {file, content} <- docs_tarball, text_file?(file) do
+        file = to_string(file)
+        %{source: file, document: content}
+      end
+
+    req = Req.new(url: code_url) |> ReqHex.attach()
+    code_tarball = Req.get!(req).body
+
+    code =
+      for {file, content} <- code_tarball["contents.tar.gz"] do
+        %{source: file, document: content}
+      end
+
+    index(docs ++ code)
   end
 
-  def load(path) do
-    path
-    |> list_text_files()
-    |> Enum.map(&%{source: &1})
-    |> Enum.map(&Rag.Loading.load_file(&1))
+  defp text_file?(file) when is_list(file) do
+    file
+    |> to_string()
+    |> String.ends_with?([".html", ".md", ".txt"])
   end
 
-  defp list_text_files(path) do
-    path
-    |> Path.join("/**/*.txt")
-    |> Path.wildcard()
+  defp text_file?(file) when is_binary(file) do
+    file
+    |> String.ends_with?([".html", ".md", ".txt"])
   end
 
   def index(ingestions) do

@@ -33,10 +33,11 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:req_hex, "~> 0.2.1"},
       {:pgvector, "~> 0.3.0"},
       {:ecto, "~> 3.0"},
       {:exla, "~> 0.9.1"},
-      {:bumblebee, "~> 0.6.0"},
+      {:bumblebee, github: "joelpaulkoch/bumblebee", branch: "jina-embeddings-v2-base-code"},
       {:text_chunker, "~> 0.3.1"},
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
