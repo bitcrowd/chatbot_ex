@@ -5,6 +5,9 @@ defmodule Chatbot.Rag do
 
   alias Rag.{Embedding, Generation, Retrieval}
 
+@provider Rag.Ai.Nx.new(%{embeddings_serving: Rag.EmbeddingServing, text_serving: Rag.LLMServing})
+
+
   def ingest(path) do
     path
     |> load()
@@ -29,7 +32,7 @@ defmodule Chatbot.Rag do
     chunks =
       ingestions
       |> Enum.flat_map(&chunk_text(&1, :document))
-      |> Embedding.Nx.generate_embeddings_batch(Rag.EmbeddingServing,
+      |> Embedding.generate_embeddings_batch(@provider,
         text_key: :chunk,
         embedding_key: :embedding
       )
@@ -48,7 +51,7 @@ defmodule Chatbot.Rag do
   def build_generation(query) do
     generation =
       Generation.new(query)
-      |> Embedding.Nx.generate_embedding(Rag.EmbeddingServing)
+      |> Embedding.generate_embedding(@provider)
       |> Retrieval.retrieve(:fulltext_results, fn generation -> query_fulltext(generation) end)
       |> Retrieval.retrieve(:semantic_results, fn generation ->
         query_with_pgvector(generation)
@@ -84,23 +87,23 @@ defmodule Chatbot.Rag do
   end
 
   defp query_with_pgvector(%{query_embedding: query_embedding}, limit \\ 3) do
-    Repo.all(
+    {:ok, Repo.all(
       from(c in Chatbot.Rag.Chunk,
         order_by: l2_distance(c.embedding, ^Pgvector.new(query_embedding)),
         limit: ^limit
       )
-    )
+    )}
   end
 
   defp query_fulltext(%{query: query}, limit \\ 3) do
     query = query |> String.trim() |> String.replace(" ", " & ")
 
-    Repo.all(
+    {:ok, Repo.all(
       from(c in Chatbot.Rag.Chunk,
         where: fragment("to_tsvector(?) @@ websearch_to_tsquery(?)", c.document, ^query),
         limit: ^limit
       )
-    )
+    )}
   end
 
   defp prompt(query, context) do
