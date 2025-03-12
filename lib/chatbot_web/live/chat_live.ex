@@ -3,13 +3,17 @@ defmodule ChatbotWeb.ChatLive do
   import ChatbotWeb.CoreComponents
   import BitcrowdEcto.Random, only: [uuid: 0]
   alias Chatbot.{Chat, Repo}
+  alias Phoenix.PubSub
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
+    if connected?(socket), do: PubSub.subscribe(Chatbot.PubSub, "rag")
+
     socket =
       socket
       |> stream(:messages, Chat.all_messages())
       |> assign(:currently_streamed_response, nil)
+      |> assign(:current_activity, nil)
       |> assign(:form, build_form())
 
     {:ok, socket}
@@ -41,6 +45,10 @@ defmodule ChatbotWeb.ChatLive do
       </div>
 
       <div class="u-grid u-gap-l1 u-margin-l1-top">
+        <.ui_card :if={@current_activity}>
+          <span class="loader"></span>
+          <%= @current_activity %>
+        </.ui_card>
         <.simple_form for={@form} phx-submit="send" class="u-justify-self-end u-width-75">
           <.ui_input
             type="textarea"
@@ -150,13 +158,25 @@ defmodule ChatbotWeb.ChatLive do
     {:noreply, stream_insert(socket, :messages, completed_message)}
   end
 
+  def handle_info({:generate_embedding, :start}, socket) do
+    {:noreply, assign(socket, current_activity: "looking up information")}
+  end
+
+  def handle_info({:retrieve, :stop}, socket) do
+    {:noreply, assign(socket, current_activity: "generating response")}
+  end
+
+  def handle_info({_key, :exception}, socket) do
+    {:noreply, assign(socket, current_activity: "an error occurred :(")}
+  end
+
   def handle_info({_key, _event}, socket) do
     {:noreply, socket}
   end
 
   @impl true
   def handle_async(:rag, _no, socket) do
-    {:noreply, socket}
+    {:noreply, assign(socket, current_activity: nil)}
   end
 
   defp build_form do
