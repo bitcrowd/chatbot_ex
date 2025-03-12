@@ -63,7 +63,7 @@ defmodule Chatbot.Rag do
     Enum.map(chunks, &Map.put(ingestion, :chunk, &1.text))
   end
 
-  def query(query) do
+  def build_generation(query) do
     generation =
       Generation.new(query)
       |> Embedding.generate_embedding(@provider)
@@ -85,13 +85,12 @@ defmodule Chatbot.Rag do
       Generation.get_retrieval_result(generation, :rrf_result)
       |> Enum.map(& &1.source)
 
-    prompt = smollm_prompt(query, context)
+    prompt = prompt(query, context)
 
     generation
     |> Generation.put_context(context)
     |> Generation.put_context_sources(context_sources)
     |> Generation.put_prompt(prompt)
-    |> Generation.generate_response(@provider)
   end
 
   defp to_chunk(ingestion) do
@@ -124,19 +123,15 @@ defmodule Chatbot.Rag do
      )}
   end
 
-  defp smollm_prompt(query, context) do
+  defp prompt(query, context) do
     """
-    <|im_start|>system
-    You are a helpful assistant.<|im_end|>
-    <|im_start|>user
     Context information is below.
     ---------------------
     #{context}
     ---------------------
     Given the context information and no prior knowledge, answer the query.
     Query: #{query}
-    Answer: <|im_end|>
-    <|im_start|>assist
+    Answer:
     """
   end
 end
