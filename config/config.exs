@@ -6,6 +6,9 @@
 
 import Config
 
+config :chatbot, Chatbot.Repo, types: Chatbot.PostgrexTypes
+config :chatbot, openai_key: "your openai API key"
+config :nx, default_backend: EXLA.Backend
 import_config "config/endpoint.exs"
 import_config "config/logger.exs"
 import_config "config/phoenix.exs"

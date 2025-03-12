@@ -33,6 +33,11 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:pgvector, "~> 0.3.0"},
+      {:ecto, "~> 3.0"},
+      {:exla, "~> 0.9.1"},
+      {:bumblebee, "~> 0.6.0"},
+      {:text_chunker, "~> 0.3.1"},
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
@@ -47,6 +52,7 @@ defmodule Chatbot.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # TODO bump on release to {:phoenix_live_view, "~> 1.0.0"},
       {:phoenix_live_view, "~> 1.0.0-rc.1", override: true},
+      {:rag, github: "bitcrowd/rag"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:telemetry_metrics, "~> 1.0"},
