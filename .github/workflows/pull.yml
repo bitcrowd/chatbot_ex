@@ -11,7 +11,7 @@ jobs:
   test:
     services:
       db:
-        image: postgres:16.0
+        image: pgvector/pgvector:pg17
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
