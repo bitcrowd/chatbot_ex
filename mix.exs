@@ -36,7 +36,6 @@ defmodule Chatbot.MixProject do
       {:req_hex, "~> 0.2.1"},
       {:earmark, "~> 1.0"},
       {:readability, "~> 0.12.1"},
-      {:hop, "~> 0.1"},
       {:req, "~> 0.5"},
       {:pgvector, "~> 0.3.0"},
       {:ecto, "~> 3.0"},
