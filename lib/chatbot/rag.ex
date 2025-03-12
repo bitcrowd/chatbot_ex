@@ -48,10 +48,20 @@ defmodule Chatbot.Rag do
     generation =
       Generation.new(query)
       |> Embedding.Nx.generate_embedding(Rag.EmbeddingServing)
-      |> Retrieval.retrieve(:fulltext_results, fn generation -> query_fulltext(generation) end)
-      |> Retrieval.retrieve(:semantic_results, fn generation ->
-        query_with_pgvector(generation)
-      end)
+
+    [fulltext, semantic] =
+      Task.await_many(
+        [
+          Task.async(fn -> query_fulltext(generation) end),
+          Task.async(fn -> query_with_pgvector(generation) end)
+        ],
+        :infinity
+      )
+
+    generation =
+      generation
+      |> Generation.put_retrieval_result(:fulltext_results, fulltext)
+      |> Generation.put_retrieval_result(:semantic_results, semantic)
       |> Retrieval.reciprocal_rank_fusion(
         %{fulltext_results: 1, semantic_results: 1},
         :rrf_result
