@@ -5,9 +5,18 @@ defmodule Chatbot.Application do
 
   use Application
 
+  alias Chatbot.Rag.Serving
+  alias Chatbot.Rag.TelemetryHandler
+
   @impl true
   def start(_type, _args) do
     children = [
+      {Nx.Serving,
+       [
+         serving: Serving.build_embedding_serving(),
+         name: Rag.EmbeddingServing,
+         batch_timeout: 100
+       ]},
       {Task.Supervisor, name: Chatbot.TaskSupervisor},
       ChatbotWeb.Telemetry,
       Chatbot.Repo,
@@ -18,6 +27,14 @@ defmodule Chatbot.Application do
       # Start to serve requests, typically the last entry
       ChatbotWeb.Endpoint
     ]
+
+    :ok =
+      :telemetry.attach_many(
+        "rag-handler",
+        Rag.Telemetry.events(),
+        &TelemetryHandler.handle_event/4,
+        nil
+      )
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

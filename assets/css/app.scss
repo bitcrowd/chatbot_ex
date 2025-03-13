@@ -78,3 +78,35 @@
 );
 
 @use '~bitstyles/scss/bitstyles/utilities/z-index';
+
+.loader {
+  width: 1rem;
+  height: 1rem;
+  border: 5px solid #9485ff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  }
+
+  @keyframes rotation {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+} 
+
+.a-card ol {
+  padding-inline-start: var(--bs-size-l2);
+}
+
+.a-card ul {
+  padding-inline-start: var(--bs-size-l2);
+}
+
+.a-card code {
+  text-wrap: wrap;
+}

@@ -33,11 +33,17 @@ defmodule Chatbot.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:req_hex, "~> 0.2.1"},
+      {:pgvector, "~> 0.3.0"},
+      {:ecto, "~> 3.0"},
+      {:exla, "~> 0.9.1"},
+      {:bumblebee, github: "joelpaulkoch/bumblebee", branch: "jina-embeddings-v2-base-code"},
+      {:text_chunker, "~> 0.3.1"},
       {:ex_machina, "~> 2.8"},
       {:bitcrowd_ecto, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:langchain, "~> 0.3.0-rc.0"},
+      {:langchain, "~> 0.3.1"},
       {:phoenix, "~> 1.7.14"},
       {:earmark, "~> 1.0"},
       {:phoenix_ecto, "~> 4.5"},
@@ -47,6 +53,7 @@ defmodule Chatbot.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # TODO bump on release to {:phoenix_live_view, "~> 1.0.0"},
       {:phoenix_live_view, "~> 1.0.0-rc.1", override: true},
+      {:rag, "~> 0.2.1"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:telemetry_metrics, "~> 1.0"},
