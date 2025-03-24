@@ -6,9 +6,15 @@ defmodule Chatbot.Rag do
   import Ecto.Query
   import Pgvector.Ecto.Query
 
-  @provider Ai.Nx.new(%{embeddings_serving: Rag.EmbeddingServing})
 
-  def ingest_ecto do
+
+  @provider Ai.OpenAI.new(%{
+              embeddings_url: "https://api.jina.ai/v1/embeddings",
+              api_key: "",
+              embeddings_model: "jina-embeddings-v2-base-code"
+            })
+
+  def ingest_ecto(batch_size \\ 80) do
     docs_url = "https://repo.hex.pm/docs/ecto-3.12.5.tar.gz"
 
     code_url = "https://repo.hex.pm/tarballs/ecto-3.12.5.tar"
@@ -30,7 +36,7 @@ defmodule Chatbot.Rag do
         %{source: file, document: content}
       end
 
-    index(docs ++ code)
+    index(docs ++ code, batch_size)
   end
 
   defp text_file?(file) when is_list(file) do
@@ -44,17 +50,22 @@ defmodule Chatbot.Rag do
     |> String.ends_with?([".html", ".md", ".txt"])
   end
 
-  def index(ingestions) do
-    chunks =
-      ingestions
-      |> Enum.flat_map(&chunk_text(&1, :document))
-      |> Embedding.generate_embeddings_batch(@provider,
-        text_key: :chunk,
-        embedding_key: :embedding
-      )
-      |> Enum.map(&to_chunk(&1))
+  def index(ingestions, batch_size \\ 80) do
+    ingestions
+    # Split the ingestions into batches
+    |> Enum.chunk_every(batch_size)
+    |> Enum.each(fn batch ->
+      chunks =
+        batch
+        |> Enum.flat_map(&chunk_text(&1, :document))
+        |> Embedding.generate_embeddings_batch(@provider,
+          text_key: :chunk,
+          embedding_key: :embedding
+        )
+        |> Enum.map(&to_chunk(&1))
 
-    Repo.insert_all(Chatbot.Rag.Chunk, chunks)
+      Repo.insert_all(Chatbot.Rag.Chunk, chunks)
+    end)
   end
 
   defp chunk_text(ingestion, text_key, opts \\ []) do
@@ -73,14 +84,14 @@ defmodule Chatbot.Rag do
         query_with_pgvector(generation)
       end)
       |> Retrieval.reciprocal_rank_fusion(
-        %{fulltext_results: 1, semantic_results: 1},
+        %{fulltext_results: 3, semantic_results: 3},
         :rrf_result
       )
       |> Retrieval.deduplicate(:rrf_result, [:source])
 
     context =
       Generation.get_retrieval_result(generation, :rrf_result)
-      |> Enum.map_join("\n\n", & &1.document)
+      |> Enum.map_join("\n\n", & &1.chunk)
 
     context_sources =
       Generation.get_retrieval_result(generation, :rrf_result)
@@ -124,13 +135,27 @@ defmodule Chatbot.Rag do
 
   defp prompt(query, context) do
     """
-    Context information is below.
-    ---------------------
+    You are an expert Elixir developer assistant specialized in helping developers adopt open-source Elixir libraries. Your answers should be concise, precise, and directly address the user's query based on the provided documentation context.
+
+    Instructions:
+    - Carefully read the provided documentation context.
+    - Provide accurate, clear, and step-by-step answers.
+    - Include relevant code snippets or configuration examples when necessary.
+    - If the documentation does not contain the exact answer, clearly state that and suggest checking the library's official resources or issue tracker.
+    - Maintain a friendly, helpful tone.
+
+    Documentation Context:
+    ```
     #{context}
-    ---------------------
-    Given the context information and no prior knowledge, answer the query.
-    Query: #{query}
-    Answer:
+    ```
+
+    Developer's Question:
+    ```
+    #{query}
+    ```
+
+    Your Answer:
+
     """
   end
 end
